@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Candidate {
+  id                  String       @id @default(uuid()) @unique
+  isRemote            Boolean
+  totalWorkExperience String
+  personalInformation PersonalInformation @relation(fields: [personalInformationId], references: [id])
+  personalInformationId String @unique
+  summary             String?
+  resumeText          String?
+  isOutdoor           Boolean?
+  isReadyToRelocate   Boolean?
+  isContract          Boolean?
+  isFulltime          Boolean?
+  isEngineering       Boolean?
+  isIT                Boolean?
+  locationId          String?
+  searchLocation      String?
+  url                 String
+  workExperiences     WorkExperience[]
+  educations          Education[]
+  
+  @@index([isRemote])
+  @@index([isReadyToRelocate])
+  @@index([isContract])
+  @@index([isFulltime])
+  @@index([isEngineering])
+  @@index([isIT])
+}
+
+model WorkExperience {
+  id       String   @id @default(uuid()) @unique
+  company  String
+  duration String
+  role     String
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+  candidateId String
+
+  @@index([candidateId])
+}
+
+model Education {
+  id             String   @id @default(uuid()) @unique
+  institution    String
+  degree         String
+  fieldOfStudy   String
+  yearOfCompletion String
+  candidate      Candidate @relation(fields: [candidateId], references: [id])
+  candidateId    String
+
+  @@index([candidateId])
+}
+
+model PersonalInformation {
+  id            String    @id @default(uuid()) @unique
+  firstName     String
+  lastName      String
+  dateOfBirth   DateTime
+  contactNumber String
+  email         String @unique
+  candidate     Candidate?
+
+  @@index([email])
+}
+
